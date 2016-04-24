@@ -85,7 +85,7 @@ function myFlatten( list ) {
     if ( Array.isArray( list[ i ] ) ) {
       out = out.concat( myFlatten( list[ i ] ) );
     } else {
-      out = out.concat( list[ i ] );
+      out.push( list[ i ] );
     }
   }
 
@@ -149,6 +149,173 @@ function encode( list ) {
   list = pack( list );
 
   return list.map( function ( element ) {
-    return [ element.length, element[0] ];
+    return [ element.length, element[ 0 ] ];
+  } );
+}
+
+/**
+ * P11 (*) Modified run-length encoding.
+ * Modify the result of problem P10 in such a way that if an element has no duplicates it is simply copied into the result list. Only elements with duplicates are transferred as (N E) lists.
+ *
+ * Example:
+ *  * (encode-modified '(a a a a b c c a a d e e e e))
+ *    ((4 A) B (2 C) (2 A) D (4 E))
+ */
+function encodeModified( list ) {
+  list = pack( list );
+
+  return list.map( function ( element ) {
+    return element.length > 1 ? [ element.length, element[ 0 ] ] : element[ 0 ];
+  } );
+}
+
+/**
+ * P12 (**) Decode a run-length encoded list.
+ * Given a run-length code list generated as specified in problem P11. Construct its uncompressed version.
+ */
+function decode( list ) {
+  var out = [ ],
+    len = list.length,
+    i = 0;
+
+  for ( ; i < len; i++ ) {
+    if ( Array.isArray( list[ i ] ) ) {
+      out = out.concat( ( new Array( list[ i ][ 0 ] ) )
+        .fill( list[ i ][ 1 ] ) );
+    } else {
+      out.push( list[ i ] );
+    }
+  }
+
+  return out;
+}
+
+/**
+ * P13 (**) Run-length encoding of a list (direct solution).
+ * Implement the so-called run-length encoding data compression method directly. I.e. don't explicitly create the sublists containing the duplicates, as in problem P09, but only count them. As in problem P11, simplify the result list by replacing the singleton lists (1 X) by X.
+ *
+ * Example:
+ *  * (encode-direct '(a a a a b c c a a d e e e e))
+ *    ((4 A) B (2 C) (2 A) D (4 E))
+ */
+function encodeDirect( list ) {
+  list = myFlatten( list );
+
+  var out = [ ],
+    len = list.length,
+    last = list[ 0 ],
+    count = 1,
+    i = 1;
+
+  for ( ; i < len; i++ ) {
+    if ( last !== list[ i ] ) {
+      out.push( count > 1 ? [ count, last ] : last );
+      count = 1;
+      last = list[ i ];
+    } else {
+      count++;
+    }
+  }
+  out.push( count > 1 ? [ count, last ] : last );
+
+  return out;
+}
+
+/**
+ * P14 (*) Duplicate the elements of a list.
+ * Example:
+ *  * (dupli '(a b c c d))
+ *    (A A B B C C C C D D)
+ */
+function dupli( list ) {
+  return myFlatten( list.map( function ( element ) {
+    return [ element, element ];
+  } ) );
+}
+
+/**
+ * P15 (**) Replicate the elements of a list a given number of times.
+ * Example:
+ *  * (repli '(a b c) 3)
+ *    (A A A B B B C C C)
+ */
+function repli( list, k ) {
+  return myFlatten( list.map( function ( element ) {
+    return ( new Array( k ) )
+      .fill( element );
+  } ) );
+}
+
+/**
+ * P16 (**) Drop every N'th element from a list.
+ * Example:
+ *  * (drop '(a b c d e f g h i k) 3)
+ *    (A B D E G H K)
+ */
+function drop( list, n ) {
+  list = myFlatten( list );
+
+  return list.filter( function ( element, index ) {
+    return ( index + 1 ) % n;
+  } );
+}
+
+/**
+ * P17 (*) Split a list into two parts; the length of the first part is given.
+ * Do not use any predefined predicates.
+ *
+ * Example:
+ *  * (split '(a b c d e f g h i k) 3)
+ *    ( (A B C) (D E F G H I K))
+ */
+function split( list, k ) {
+  list = myFlatten( list );
+
+  return [ list.slice( 0, k ), list.slice( k ) ];
+}
+
+/**
+ * P18 (**) Extract a slice from a list.
+ * Given two indices, I and K, the slice is the list containing the elements between the I'th and K'th element of the original list (both limits included). Start counting the elements with 1.
+ *
+ * Example:
+ *  * (slice '(a b c d e f g h i k) 3 7)
+ *    (C D E F G)
+ */
+function slice( list, i, k ) {
+  list = myFlatten( list );
+
+  return list.slice( i - 1, k );
+}
+
+/**
+ * P19 (**) Rotate a list N places to the left.
+ * Examples:
+ *  * (rotate '(a b c d e f g h) 3)
+ *    (D E F G H A B C)
+ *
+ *  * (rotate '(a b c d e f g h) -2)
+ *  (G H A B C D E F)
+ *
+ *  Hint: Use the predefined functions length and append, as well as the result of problem P17.
+ */
+function rotate( list, n ) {
+  list = split( list, n );
+
+  return ( list[ 1 ] )
+    .concat( list[ 0 ] );
+}
+
+/**
+ * P20 (*) Remove the K'th element from a list.
+ * Example:
+ *  * (remove-at '(a b c d) 2)
+ *    (A C D)
+ */
+function removeAt( list, k ) {
+  list = myFlatten( list );
+
+  return list.filter( function ( element, index ) {
+    return index !== k - 1;
   } );
 }
