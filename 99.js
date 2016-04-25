@@ -319,3 +319,38 @@ function removeAt( list, k ) {
     return index !== k - 1;
   } );
 }
+
+/**
+ * P21 (*) Insert an element at a given position into a list.
+ * Example:
+ *  * (insert-at 'alfa '(a b c d) 2)
+ *    (A ALFA B C D)
+ */
+function insertAt( element, list, k ) {
+  list = myFlatten( list );
+
+  var out = list.slice( 0, k - 1 );
+  out.push( element );
+
+  return out.concat( list.slice( k - 1 ) );
+}
+
+/**
+ * P22 (*) Create a list containing all integers within a given range.
+ * If first argument is smaller than second, produce a list in decreasing order.
+ * Example:
+ *  * (range 4 9)
+ *    (4 5 6 7 8 9)
+ */
+function range( start, finish ) {
+  var out = [],
+    dir = finish - start > 0 ? 1 : -1;
+
+  while( start !== finish ) {
+    out.push( start );
+    start += dir;
+  }
+  out.push( start );
+
+  return out;
+}
