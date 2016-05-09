@@ -343,14 +343,66 @@ function insertAt( element, list, k ) {
  *    (4 5 6 7 8 9)
  */
 function range( start, finish ) {
-  var out = [],
+  var out = [ ],
     dir = finish - start > 0 ? 1 : -1;
 
-  while( start !== finish ) {
+  while ( start !== finish ) {
     out.push( start );
     start += dir;
   }
   out.push( start );
 
   return out;
+}
+
+/**
+ * P23 (**) Extract a given number of randomly selected elements from a list.
+ * The selected items shall be returned in a list.
+ * Example:
+ *  * (rnd-select '(a b c d e f g h) 3)
+ *    (E D A)
+ *
+ * Hint: Use the built-in random number generator and the result of problem P20.
+ */
+function rndSelect( list, n ) {
+  var out = [ ],
+    k;
+
+  if ( !n || n > list.length ) {
+    n = list.length;
+  }
+
+  while ( n ) {
+    k = Math.floor( Math.random( ) * list.length );
+    out.push( list[ k ] );
+    list = removeAt( list, k + 1 );
+    n--;
+  }
+
+  return out;
+}
+
+/**
+ * P24 (*) Lotto: Draw N different random numbers from the set 1..M.
+ * The selected numbers shall be returned in a list.
+ * Example:
+ *  * (lotto-select 6 49)
+ *    (23 1 17 33 21 37)
+ *
+ * Hint: Combine the solutions of problems P22 and P23.
+ */
+function lottoSelect( n, m ) {
+  return rndSelect( range( 1, m ), n );
+}
+
+/**
+ * P25 (*) Generate a random permutation of the elements of a list.
+ * Example:
+ *  * (rnd-permu '(a b c d e f))
+ *    (B A D C E F)
+ *
+ * Hint: Use the solution of problem P23.
+ */
+function rndPermu( list ) {
+  return rndSelect( list, list.length );
 }
